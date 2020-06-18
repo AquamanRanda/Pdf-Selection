@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Basic WebViewer</title>
+  </head>
+
+  <!-- Import WebViewer as a script tag -->
+  <script src="WebViewer/lib/webviewer.min.js"></script>
+
+  <body>
+    <!--initialize the viewer div-->
+    <div
+      id="viewer"
+      style="width: 1024px; height: 600px; margin: 0 auto;"
+    ></div>
+    <!--Text Area to get the selected words-->
+    <textarea id="text1"></textarea>
+
+    
+    <script>
+    // Function to copy to clipboard
+      const copyToClipboard = (str) => {
+        const el = document.createElement("textarea");
+        el.value = str;
+        el.setAttribute("readonly", "");
+        el.style.position = "absolute";
+        el.style.left = "-9999px";
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+      };
+      var x;
+    //   get the textarea from the document
+      var textarea = document.getElementById("text1");
+    //   initialize the webviewer 
+      WebViewer(
+        {
+          path: "WebViewer/lib", // path to the PDFTron 'lib' folder on your server
+          licenseKey: "Insert commercial license key here after purchase",
+          initialDoc:
+            "https://pdftron.s3.amazonaws.com/downloads/pl/webviewer-demo.pdf",
+          // initialDoc: '/path/to/my/file.pdf',  // You can also use documents on your server
+        },
+        document.getElementById("viewer")
+        //Promise to get the selected text from the webviewer 
+      ).then((instance) => {
+        const docViewer = instance.docViewer;
+        const annotManager = instance.annotManager;
+        docViewer.on("documentLoaded", () => {
+          docViewer.on("textSelected", (quads, text, pageIndex) => {
+            // quads will be an array of 'Quad' objects
+            // text is the selected text as a string
+            if (text.length > 0) {
+              x = text;
+              textarea.value = x;
+              copyToClipboard(x);
+              console.log(x);
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
